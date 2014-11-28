@@ -20,10 +20,12 @@ extend StateMachine::MacroMethods
     state :paid, value: 2
     state :canceled, value: 3
     
-    after_transition any => any do |transition|
-      self.object.status_transition.update(event: transition.event, 
-       from: transition.from, to: ttransition.to)
-    end
+
+    after_transition any => any do |order, transition|
+     p order # disavle this as needed
+     order.status_transition.update(event: transition.event, from: transition.from, to: transition.to)
+   end
+
 
     event :place do 
       transition :draft => :placed
