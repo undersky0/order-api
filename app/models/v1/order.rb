@@ -21,7 +21,7 @@ extend StateMachine::MacroMethods
     state :canceled, value: 3
     
     after_transition any => any do |transition|
-      self.status_transition.update(event: transition.event, 
+      self.object.status_transition.update(event: transition.event, 
        from: transition.from, to: ttransition.to)
     end
 
