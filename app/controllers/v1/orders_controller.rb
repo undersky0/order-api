@@ -1,7 +1,7 @@
 class V1::OrdersController < ApplicationController
   # GET /v1/orders
   # GET /v1/orders.json
-  before_filter :restrict_access 
+  #before_filter :restrict_access 
   def index
     @v1_orders = V1::Order.all
 
@@ -27,8 +27,9 @@ class V1::OrdersController < ApplicationController
   # POST /v1/orders
   # POST /v1/orders.json
   def create
-    @v1_order = V1::Order.new(v1_order_params)
 
+      @v1_order = V1::Order.new(v1_order_params)
+    
     if @v1_order.save
       render json: @v1_order, status: :created, location: @v1_order
     else
@@ -40,12 +41,18 @@ class V1::OrdersController < ApplicationController
   # PATCH/PUT /v1/orders/1.json
   def update
     @v1_order = V1::Order.find(params[:id])
-
+    
+    case @v1_order.state
+    when 0
     if @v1_order.update(v1_order_params)
       head :no_content
     else
       render json: @v1_order.errors, status: :unprocessable_entity
     end
+    else
+      render json: {message: 'Can be edited only when in draft(0) state'}, status: 400
+    end
+      
   end
 
   # DELETE /v1/orders/1
@@ -57,9 +64,9 @@ class V1::OrdersController < ApplicationController
     head :no_content
   end
 
-  private
-    
+  private    
     def v1_order_params
-      params.require(:v1_order).permit(:state, :vat, :order_date, :item_line_id, :user_id, :product_attributes => [:name, :net_price])
+      params.require(:v1_order).permit(:state, :vat, :order_date, :user_id, :item_lines_attributes => [:id, :quantity, :net_price])
     end
+    
 end

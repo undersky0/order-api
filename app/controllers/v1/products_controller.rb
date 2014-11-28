@@ -1,5 +1,5 @@
 class V1::ProductsController < ApplicationController
-   before_filter :restrict_access 
+   before_filter :restrict_access, except: [:update, :destroy]
   # GET /v1/products
   # GET /v1/products.json
 # 200 - :ok
@@ -31,7 +31,8 @@ class V1::ProductsController < ApplicationController
   # POST /v1/products
   # POST /v1/products.json
   def create
-    @v1_product = V1::Product.new(v1_product_params)
+    @itemline = V1::ItemLine.new(:net_price => params[:net_price])
+    @v1_product = @itemline.build_product(v1_product_params)
 
     if @v1_product.save
       render json: @v1_product, status: :created, location: @v1_product
@@ -56,14 +57,19 @@ class V1::ProductsController < ApplicationController
   # DELETE /v1/products/1.json
   def destroy
     @v1_product = V1::Product.find(params[:id])
-    @v1_product.destroy
-
-    head :no_content
+    puts "ORDER"
+    puts @v1_product.item_line.inspect
+    if @v1_product.try(:item_line).try(:order).nil?
+      @v1_product.destroy
+      head :no_content
+    else
+      render json: {message: 'Someone has ordered this product'}, status: 401
+    end
   end
 
   private
     
     def v1_product_params
-      params.require(:v1_product).permit(:name, :net_price, :item_line => [:quantity, :net_price])
+      params.require(:v1_product).permit(:name, :net_price, :item_line_id, :item_line => [:quantity, :net_price])
     end
 end

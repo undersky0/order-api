@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141126191101) do
+ActiveRecord::Schema.define(version: 20141128122036) do
 
   create_table "v1_api_keys", force: true do |t|
     t.integer  "user_id"
@@ -21,28 +21,34 @@ ActiveRecord::Schema.define(version: 20141126191101) do
   end
 
   create_table "v1_item_lines", force: true do |t|
-    t.integer  "quantity"
+    t.integer  "quantity",   default: 0
     t.decimal  "net_price"
     t.integer  "order_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
+  add_index "v1_item_lines", ["order_id"], name: "index_v1_item_lines_on_order_id"
+
   create_table "v1_orders", force: true do |t|
     t.integer  "state"
-    t.decimal  "vat",        precision: 8, scale: 2
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.decimal  "vat",        precision: 8, scale: 2, default: 20.0
   end
+
+  add_index "v1_orders", ["user_id"], name: "index_v1_orders_on_user_id"
 
   create_table "v1_products", force: true do |t|
     t.string   "name"
     t.decimal  "net_price",    precision: 8, scale: 2
-    t.integer  "item_line_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "item_line_id"
   end
+
+  add_index "v1_products", ["item_line_id"], name: "index_v1_products_on_item_line_id"
 
   create_table "v1_status_transitions", force: true do |t|
     t.string   "event"
@@ -52,6 +58,8 @@ ActiveRecord::Schema.define(version: 20141126191101) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "v1_status_transitions", ["order_id"], name: "index_v1_status_transitions_on_order_id"
 
   create_table "v1_users", force: true do |t|
     t.string   "name"

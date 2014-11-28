@@ -1,7 +1,7 @@
 class CreateV1ItemLines < ActiveRecord::Migration
   def change
     create_table :v1_item_lines do |t|
-      t.integer :quantity
+      t.integer :quantity, :default => 0
       t.decimal :net_price
       t.integer :order_id
 
