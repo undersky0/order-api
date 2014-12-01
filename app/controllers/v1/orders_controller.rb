@@ -68,5 +68,6 @@ class V1::OrdersController < ApplicationController
     def v1_order_params
       params.require(:v1_order).permit(:state, :vat, :order_date, :user_id, :item_lines_attributes => [:id, :quantity, :net_price])
     end
+
     
 end

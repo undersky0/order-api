@@ -1,7 +1,9 @@
   include ActionController::HttpAuthentication::Token::ControllerMethods
   include ActionController::MimeResponds
 class ApplicationController < ActionController::API
-  
+      def default_serializer_options
+       {root:false}
+      end
   private
 
     def restrict_access

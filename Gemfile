@@ -24,4 +24,5 @@ group :test do
 end
 
 gem 'jbuilder'
+gem 'active_model_serializers'
 
