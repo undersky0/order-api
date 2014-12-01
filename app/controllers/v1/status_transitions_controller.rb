@@ -1,23 +1,27 @@
 class V1::StatusTransitionsController < ApplicationController
 
   def index
-        
       @v1_order = V1::Order.find(params[:order_id])
       @v1_status_transition = @v1_order.status_transition
-    render json: @v1_status_transition, status: 200
-    if params[:event].present?
+    if params[:event].present?    
     case params[:event]
       when "place"
       @v1_order.place
       puts "placed"
-      #render json: {message: "Order placed"}, status: 200
+      render json: {message: "Order placed"}, status: 200
     when "pay"
       @v1_order.pay
-      #render json: {message: "Order payed"}, status: 200
+      render json: {message: "Order payed"}, status: 200
     when "cancel"
+      if params[:reason].present?
       @v1_order.cancel
-      #render json: {message: "Order Canceled"}, status: 200
+      render json: {message: "Order Canceled"}, status: 200
+      else
+        render json: {message: "Please include :reason"}
+      end
     end
+    else
+    render json: @v1_status_transition, status: 200
     end
   end
 

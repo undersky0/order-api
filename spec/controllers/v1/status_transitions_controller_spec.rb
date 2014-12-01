@@ -69,9 +69,9 @@ RSpec.describe V1::StatusTransitionsController, :type => :controller do
       @order.reload
       expect(@order.status_transition.event).to eq "pay"
     end
-    it "updates to pay " do
+    it "updates to cancel " do
       @order = FactoryGirl.create(:v1_order, state: 1)
-      get :index, :order_id => @order.id, :event => "cancel"
+      get :index, :order_id => @order.id, :event => "cancel", :reason => "dsadsa"
       @order.reload
       expect(@order.status_transition.event).to eq "cancel"
     end
