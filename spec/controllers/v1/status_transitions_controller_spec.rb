@@ -35,125 +35,75 @@ RSpec.describe V1::StatusTransitionsController, :type => :controller do
   # in order to pass any filters (e.g. authentication) defined in
   # V1::StatusTransitionsController. Be sure to keep this updated too.
   let(:valid_session) { {} }
-
-  describe "GET index" do
-    it "assigns all v1_status_transitions as @v1_status_transitions" do
-      status_transition = V1::StatusTransition.create! valid_attributes
-      get :index, {}, valid_session
-      expect(assigns(:v1_status_transitions)).to eq([status_transition])
+  
+  before(:each) do |t|
+    unless t.metadata[:skip_before]
+      @order = FactoryGirl.create(:v1_order)
+      @status = FactoryGirl.build(:v1_status_transition)
+      
     end
   end
 
-  describe "GET show" do
+  describe "GET index", :skip_before do
     it "assigns the requested v1_status_transition as @v1_status_transition" do
-      status_transition = V1::StatusTransition.create! valid_attributes
-      get :show, {:id => status_transition.to_param}, valid_session
-      expect(assigns(:v1_status_transition)).to eq(status_transition)
+      @order = FactoryGirl.create(:v1_order)
+      get :index, :order_id => @order.id
+      expect(response.status).to eq(200)
+    end
+    
+    it "updates to place" do
+      @order = FactoryGirl.create(:v1_order)
+      get :index, :order_id => @order.id, :event => "place"
+      @order.reload
+      expect(@order.status_transition.event).to eq "place"
+    end
+    it "updates to pay fails" do
+      @order = FactoryGirl.create(:v1_order)
+      get :index, :order_id => @order.id, :event => "pay"
+      @order.reload
+      expect(@order.status_transition.event).to eq nil
+    end
+    it "updates to pay " do
+      @order = FactoryGirl.create(:v1_order, state: 1)
+      get :index, :order_id => @order.id, :event => "pay"
+      @order.reload
+      expect(@order.status_transition.event).to eq "pay"
+    end
+    it "updates to pay " do
+      @order = FactoryGirl.create(:v1_order, state: 1)
+      get :index, :order_id => @order.id, :event => "cancel"
+      @order.reload
+      expect(@order.status_transition.event).to eq "cancel"
     end
   end
 
-  describe "GET new" do
-    it "assigns a new v1_status_transition as @v1_status_transition" do
-      get :new, {}, valid_session
-      expect(assigns(:v1_status_transition)).to be_a_new(V1::StatusTransition)
-    end
-  end
 
-  describe "GET edit" do
-    it "assigns the requested v1_status_transition as @v1_status_transition" do
-      status_transition = V1::StatusTransition.create! valid_attributes
-      get :edit, {:id => status_transition.to_param}, valid_session
-      expect(assigns(:v1_status_transition)).to eq(status_transition)
-    end
-  end
-
-  describe "POST create" do
-    describe "with valid params" do
-      it "creates a new V1::StatusTransition" do
-        expect {
-          post :create, {:v1_status_transition => valid_attributes}, valid_session
-        }.to change(V1::StatusTransition, :count).by(1)
-      end
-
-      it "assigns a newly created v1_status_transition as @v1_status_transition" do
-        post :create, {:v1_status_transition => valid_attributes}, valid_session
-        expect(assigns(:v1_status_transition)).to be_a(V1::StatusTransition)
-        expect(assigns(:v1_status_transition)).to be_persisted
-      end
-
-      it "redirects to the created v1_status_transition" do
-        post :create, {:v1_status_transition => valid_attributes}, valid_session
-        expect(response).to redirect_to(V1::StatusTransition.last)
-      end
-    end
-
-    describe "with invalid params" do
-      it "assigns a newly created but unsaved v1_status_transition as @v1_status_transition" do
-        post :create, {:v1_status_transition => invalid_attributes}, valid_session
-        expect(assigns(:v1_status_transition)).to be_a_new(V1::StatusTransition)
-      end
-
-      it "re-renders the 'new' template" do
-        post :create, {:v1_status_transition => invalid_attributes}, valid_session
-        expect(response).to render_template("new")
-      end
-    end
-  end
-
-  describe "PUT update" do
-    describe "with valid params" do
-      let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
-      }
-
-      it "updates the requested v1_status_transition" do
-        status_transition = V1::StatusTransition.create! valid_attributes
-        put :update, {:id => status_transition.to_param, :v1_status_transition => new_attributes}, valid_session
-        status_transition.reload
-        skip("Add assertions for updated state")
-      end
-
-      it "assigns the requested v1_status_transition as @v1_status_transition" do
-        status_transition = V1::StatusTransition.create! valid_attributes
-        put :update, {:id => status_transition.to_param, :v1_status_transition => valid_attributes}, valid_session
-        expect(assigns(:v1_status_transition)).to eq(status_transition)
-      end
-
-      it "redirects to the v1_status_transition" do
-        status_transition = V1::StatusTransition.create! valid_attributes
-        put :update, {:id => status_transition.to_param, :v1_status_transition => valid_attributes}, valid_session
-        expect(response).to redirect_to(status_transition)
-      end
-    end
-
-    describe "with invalid params" do
-      it "assigns the v1_status_transition as @v1_status_transition" do
-        status_transition = V1::StatusTransition.create! valid_attributes
-        put :update, {:id => status_transition.to_param, :v1_status_transition => invalid_attributes}, valid_session
-        expect(assigns(:v1_status_transition)).to eq(status_transition)
-      end
-
-      it "re-renders the 'edit' template" do
-        status_transition = V1::StatusTransition.create! valid_attributes
-        put :update, {:id => status_transition.to_param, :v1_status_transition => invalid_attributes}, valid_session
-        expect(response).to render_template("edit")
-      end
-    end
-  end
-
-  describe "DELETE destroy" do
-    it "destroys the requested v1_status_transition" do
-      status_transition = V1::StatusTransition.create! valid_attributes
-      expect {
-        delete :destroy, {:id => status_transition.to_param}, valid_session
-      }.to change(V1::StatusTransition, :count).by(-1)
-    end
-
-    it "redirects to the v1_status_transitions list" do
-      status_transition = V1::StatusTransition.create! valid_attributes
-      delete :destroy, {:id => status_transition.to_param}, valid_session
-      expect(response).to redirect_to(v1_status_transitions_url)
-    end
-  end
+  # describe "PUT update" do
+    # describe "with valid params" do
+      # it "updates the requested v1_status_transition" do
+        # put :update, {:id => @order.status_transition.id, :v1_status_transition => {:event => "place"}}
+        # puts response.body
+      # end
+# 
+      # it "assigns the requested v1_status_transition as @v1_status_transition" do
+        # put :update, {:id => @status.id, :v1_status_transition => {event: "pay"}}, valid_session
+        # expect(assigns(:v1_status_transition)).to eq(status_transition)
+      # end
+# 
+    # end
+# 
+    # describe "with invalid params" do
+      # it "assigns the v1_status_transition as @v1_status_transition" do
+        # put :update, {:id => @status.to_param, :v1_status_transition => invalid_attributes}, valid_session
+        # expect(assigns(:v1_status_transition)).to eq(status_transition)
+      # end
+# 
+      # it "re-renders the 'edit' template" do
+        # status_transition = V1::StatusTransition.create! valid_attributes
+        # put :update, {:id => status_transition.to_param, :v1_status_transition => invalid_attributes}, valid_session
+        # expect(response).to render_template("edit")
+      # end
+    # end
+  # end
 
 end

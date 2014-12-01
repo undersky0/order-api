@@ -5,7 +5,7 @@ Rails.application.routes.draw do
     resources :user
     resources :orders, except: [:new, :edit] do 
       resources :item_lines, except: [:new, :edit]
-      resources :status_transitions, except: [:new, :edit]
+      resources :status_transitions, only: [:index, :update]
     end
     resources :products, except: [:new, :edit]
   end

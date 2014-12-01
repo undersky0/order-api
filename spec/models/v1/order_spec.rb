@@ -12,10 +12,28 @@ RSpec.describe V1::Order, :type => :model do
   before(:each) do 
     @user = FactoryGirl.create(:v1_user)
     @order = FactoryGirl.create(:v1_order)
+    @transition = FactoryGirl.create(:v1_status_transition, order_id: @order.id)
   end
   
-  # it 'should return a single order' do
-    # response = api_get "order/#{@order.id}", {token: @user.api_key.token}
-    # response.status.should == 200
-  # end
+  context "Testing state machine" do 
+  it "should change state from 0 to 1" do 
+    expect{@order.place}.to change{@order.state}.from(0).to(1)
+  end
+  
+  it "should change state from 0 to 1 to 2" do
+    expect{@order.place}.to change{@order.state}.from(0).to(1)
+    
+    expect([@order.status_transition.event, @order.status_transition.from,
+      @order.status_transition.to]).to contain_exactly(:place,:draft,:placed)
+      
+    expect{@order.pay}.to change{@order.state}.from(1).to(2)
+    expect([@order.status_transition.event, @order.status_transition.from,
+      @order.status_transition.to]).to contain_exactly(:pay,:placed,:paid)
+      
+    expect{@order.cancel}.not_to change{@order.state} 
+  end
+  
+  end
+  
+
 end

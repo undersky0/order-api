@@ -1,7 +1,7 @@
 class V1::OrdersController < ApplicationController
   # GET /v1/orders
   # GET /v1/orders.json
-  #before_filter :restrict_access 
+
   def index
     @v1_orders = V1::Order.all
 
@@ -29,9 +29,9 @@ class V1::OrdersController < ApplicationController
   def create
 
       @v1_order = V1::Order.new(v1_order_params)
-    
+
     if @v1_order.save
-      render json: @v1_order, status: :created, location: @v1_order
+      render json: @v1_order, status: :OK, location: @v1_order
     else
       render json: @v1_order.errors, status: :unprocessable_entity
     end
@@ -41,7 +41,7 @@ class V1::OrdersController < ApplicationController
   # PATCH/PUT /v1/orders/1.json
   def update
     @v1_order = V1::Order.find(params[:id])
-    
+
     case @v1_order.state
     when 0
     if @v1_order.update(v1_order_params)
